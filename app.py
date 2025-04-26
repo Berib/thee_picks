@@ -3,6 +3,8 @@ from create_schedule import three_picks, watched_status, create_missing_tables
 from schedules import *
 import os
 import signal
+import shutil
+
 
 app = Flask(__name__)
 
@@ -17,6 +19,13 @@ def handle_db(title):
 
     # Database operation
     return watched_status(title, "Schedule", selected_schedule)
+
+def backup_database():
+    """Creates backup of Schedule.db"""
+    backup_file = f"Schedule_backup.db"
+    if os.path.exists("Schedule.db"):
+        shutil.copy2("Schedule.db", backup_file)
+        print(f"✅ Created database backup: {backup_file}")
 
 @app.route('/')
 def home():
@@ -77,4 +86,5 @@ if __name__ == '__main__':
     print("⚙️ Initializing database...")
     create_missing_tables("Schedule.db", schedules)
     print("✅ Database ready")
+    backup_database()
     app.run(debug=True)
