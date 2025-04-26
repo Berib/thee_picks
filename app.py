@@ -4,10 +4,10 @@ from schedules import *
 import os
 import signal
 
-
-
 app = Flask(__name__)
 
+# Store selected schedule globally
+selected_schedule = None
 
 def handle_db(title):
     """Business logic: Handles the actual label processing"""
@@ -16,15 +16,20 @@ def handle_db(title):
         raise ValueError("Empty title provided")
 
     # Database operation
-    return watched_status(title, "Schedule", schedule_main)
+    return watched_status(title, "Schedule", selected_schedule)
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    global selected_schedule
+    # Initialize with first schedule if not set
+    if selected_schedule is None:
+        selected_schedule = schedules[0]
+    schedule_options = [schedule.name for schedule in schedules]
+    return render_template('index.html', schedule_options=schedule_options)
 
 @app.route('/run_function')
 def run_function():
-    labels = three_picks("Schedule", schedule_main)  # Run the imported function
+    labels = three_picks("Schedule", selected_schedule)  # Run the imported function
     return jsonify(labels)
 
 @app.route('/about')
@@ -36,7 +41,6 @@ def shutdown():
     # Safely shutdown the server
     os.kill(os.getpid(), signal.SIGINT)
     return 'Server shutting down...'
-
 
 @app.route('/process_label', methods=['POST'])
 def process_label_route():
@@ -59,8 +63,17 @@ def process_label_route():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/select_schedule', methods=['POST'])
+def select_schedule():
+    global selected_schedule
+    schedule_name = request.json.get('schedule_name')
+    for schedule in schedules:
+        if schedule.name == schedule_name:
+            selected_schedule = schedule
+            return jsonify({'status': 'success'})
+    return jsonify({'status': 'error', 'message': 'Schedule not found'}), 404
 
-schedule_main = schedule_test
+schedule_main = selected_schedule
 
 if __name__ == '__main__':
     print("⚙️ Initializing database...")
