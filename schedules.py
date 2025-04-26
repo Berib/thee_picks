@@ -8,17 +8,17 @@ class Schedule:
     
     def export_to_csv(self, filename=None, overwrite=False):
         """
-        Export schedule titles to CSV file with header
-        If filename not provided, uses schedule name with .csv extension
+        Export schedule titles to CSV file with header title
+        uses schedule name with .csv extension
         Set overwrite=True to replace existing files
         """
         if filename is None:
             filename = f"CSVs/{self.name}.csv"
         
-        # Create CSVs directory if it doesn't exist
+
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         
-        # Skip if file exists and overwrite=False
+
         if not overwrite and os.path.exists(filename):
             return None
             
