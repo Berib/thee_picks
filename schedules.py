@@ -1,7 +1,35 @@
+import csv
+import os
+
 class Schedule:
     def __init__(self, name, films):
         self.name = name
         self.films = [(film, 0, False) if isinstance(film, str) else film for film in films]
+    
+    def export_to_csv(self, filename=None, overwrite=False):
+        """
+        Export schedule titles to CSV file with header
+        If filename not provided, uses schedule name with .csv extension
+        Set overwrite=True to replace existing files
+        """
+        if filename is None:
+            filename = f"CSVs/{self.name}.csv"
+        
+        # Create CSVs directory if it doesn't exist
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        
+        # Skip if file exists and overwrite=False
+        if not overwrite and os.path.exists(filename):
+            return None
+            
+        with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(['Title'])  # Header row as list
+            for film in self.films:
+                writer.writerow([film[0]])  # Title only as list
+        return filename
+
+
 
 
 films_test = [
@@ -60,5 +88,9 @@ films_test = [
 schedule_test = Schedule("Schedule_test", films_test)
 
 
+
 # Add new ones here
 schedules = [schedule_test]
+
+for i in schedules:
+    i.export_to_csv(overwrite=False)
