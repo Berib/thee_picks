@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <title>Three Picks</title>
+</head>
+<body>
+    <h1>Three Picks</h1>
+    <div class="button-container" id="initial-button-container">
+        <button id="show-button" onclick="showButtons()">Roll</button>
+    </div>
+    <div id="selection-message" class="selection-textbox">
+        <p>Selected: <span id="selected-film"></span></p>
+    </div>
+    <div class="button-container" id="hidden-buttons" style="display: none;">
+        <button id="button1">Button 1</button>
+        <button id="button2">Button 2</button>
+        <button id="button3">Button 3</button>
+    </div>
+    <div class="exit-container">
+        <button id="exit-btn" onclick="shutdownApp()">Exit</button>
+    </div>
+    <script>
+        document.getElementById('hidden-buttons').addEventListener('click', (event) => {
+            if (event.target.matches('button')) {
+                // This replaces all individual onclick handlers
+                handleButtonClick(event.target);
+            }
+                });
+
+        function showButtons() {
+            document.getElementById('selection-message').style.display = 'none';
+            fetch('/run_function')
+                .then(response => response.json())
+                .then(labels => {
+                    const buttons = document.querySelectorAll('#hidden-buttons button');
+                    buttons.forEach(button => button.style.display = 'none');
+
+
+                    labels.forEach((label, index) => {
+                        if (index < 3) {
+                            buttons[index].style.display = 'inline-block';
+                            buttons[index].textContent = `${label[1]} : ${label[2]}`;
+                        }
+                    });
+
+                    if (labels.length > 0) {
+                        document.getElementById('hidden-buttons').style.display = 'flex';
+                        document.getElementById('initial-button-container').style.display = 'none';
+                    }
+                })
+        .catch(error => console.error('Error fetching labels:', error));
+}
+        function handleButtonClick(buttonElement) {
+
+            const buttonText = buttonElement.textContent.trim();
+
+            fetch('/process_label', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ label: buttonText })
+        })
+            .then(response => response.json())
+            .then(result => {
+
+                console.log(result);
+
+                document.getElementById('hidden-buttons').style.display = 'none';
+                document.getElementById('initial-button-container').style.display = 'flex';
+
+                document.getElementById('selected-film').textContent = buttonText.split(':')[0].trim();
+                document.getElementById('selection-message').style.display = 'block';
+    })
+
+            .catch(error => console.error('Error:', error));
+}
+        function shutdownApp(){
+             if(confirm("Are you sure you want to exit?")) {
+                fetch('/shutdown', {
+                    method: 'POST'
+                })
+             .then(() => {
+                    document.body.innerHTML = '<h1>Goodbye!</h1><p>Server is shutting down...</p>';
+                })
+                .catch(err => console.error('Error shutting down:', err));
+    }
+        }
+
+</script>
+
+</body>
+</html>
