@@ -105,6 +105,29 @@ To add your own film schedules to the application:
 - For testing, use the existing `schedule_test` as an example
 - To change the default schedule, modify `schedule_main = schedule_test` in app.py
 
+## Film Management
+
+### Adding/Removing Films
+1. Edit the film lists in `schedules.py`:
+   ```python
+   # Example: Adding to Schedule_test
+   films_test = [
+       ...
+       "New Film",  # Add new films here
+   ]
+   ```
+2. Changes are automatically detected:
+   - Added films appear with default values (0 appearances, not watched)
+   - Removed films are deleted from the database
+   - Existing films remain unchanged
+
+### Viewing Changes
+The system logs all modifications:
+```
+Added 2 films to Schedule_test: New Film 1, New Film 2
+Removed 1 film from Schedule_test: Old Film
+```
+
 ## Project Structure
 - `app.py` - Main Flask application
 - `schedules.py` - Schedule management logic

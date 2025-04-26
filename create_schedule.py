@@ -115,6 +115,44 @@ class FilmDatabase:
         """)
         return self.cursor.fetchone()[0]
 
+    def check_new_additions(self):
+        """Check for new films added to current schedule"""
+        cursor = self.conn.cursor()
+        cursor.execute(f"SELECT name FROM {self.schedule.name}")
+        existing_films = {row[0] for row in cursor.fetchall()}
+        return [film for film in self.schedule.films if film[0] not in existing_films]
+
+    def sync_films(self):
+        """Syncs current schedule's films with database"""
+        current_films = {f[0] for f in self.schedule.films}
+        
+        # Get existing films
+        self.cursor.execute(f"SELECT rowid, name FROM {self.schedule.name}")
+        existing = {row[1]: row[0] for row in self.cursor.fetchall()}
+        
+        # Add new films
+        new_films = [f for f in self.schedule.films if f[0] not in existing]
+        if new_films:
+            with self.conn:
+                self.conn.executemany(
+                    f"INSERT INTO {self.schedule.name} (name, appearances, watched) VALUES (?, ?, ?)",
+                    new_films
+                )
+        
+        # Remove deleted films
+        deleted = [rowid for name, rowid in existing.items() if name not in current_films]
+        if deleted:
+            with self.conn:
+                self.conn.executemany(
+                    f"DELETE FROM {self.schedule.name} WHERE rowid = ?",
+                    [(rowid,) for rowid in deleted]
+                )
+        
+        return {
+            'added': [f[0] for f in new_films],
+            'removed': [name for name, rowid in existing.items() if name not in current_films]
+        }
+
 def three_picks(db_name, schedule):
     """Main Loop"""
     with FilmDatabase(f"{db_name}.db", schedule=schedule) as db:
@@ -126,7 +164,7 @@ def watched_status(choice, db_name, schedule):
 
 def delete_table_func(db_name, schedule):
     with FilmDatabase(f"{db_name}.db", schedule=schedule) as db:
-        db.delete_table()
+        db.delete_table(schedule)
 
 
 def rename_db_table(db_path: str, old_name: str, new_name: str):
@@ -154,6 +192,13 @@ def create_missing_tables(db_path: str, schedules: list):
                 db.schedule = schedule
                 db.create_table()
                 db.create_items()
+            else:
+                db.schedule = schedule
+                if (result := db.sync_films()) and (result['added'] or result['removed']):
+                    if result['added']:
+                        print(f"Added {len(result['added'])} films to {schedule.name}: {', '.join(result['added'])}")
+                    if result['removed']:
+                        print(f"Removed {len(result['removed'])} films from {schedule.name}: {', '.join(result['removed'])}")
         # Deletes tables that don't exist in schedules.py
         for table in existing_tables:
             if table not in [schedule.name for schedule in schedules]:
