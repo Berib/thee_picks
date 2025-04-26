@@ -1,11 +1,28 @@
 # Flask Scheduling Application
 
-A web-based scheduling application built with Python and Flask.
+A web-based scheduling application built with Python and Flask that helps users manage and select schedules.
+
+## Project Structure
+
+```
+flasktut/
+├── app.py                # Main Flask application
+├── create_schedule.py    # Schedule creation script
+├── schedules.py          # Schedule management module
+├── static/
+│   └── style.css         # CSS styles
+├── templates/
+│   └── index.html        # Main HTML template
+├── Schedule.db           # SQLite database
+└── requirements.txt      # Dependencies
+```
 
 ## Features
 - Schedule management system
 - Database integration (SQLite)
 - Web interface with HTML/CSS
+- Random schedule selection functionality
+- Database persistence for schedules
 
 ## Requirements
 - Python 3.x
@@ -14,7 +31,7 @@ A web-based scheduling application built with Python and Flask.
 
 ## Installation
 1. Clone this repository
-2. Create a virtual environment:
+2. Create and activate a virtual environment:
    ```
    python -m venv .venv
    ```
@@ -22,7 +39,7 @@ A web-based scheduling application built with Python and Flask.
    ```
    .venv\Scripts\activate
    ```
-4. Install dependencies:
+3. Install dependencies:
    ```
    pip install -r requirements.txt
    ```
@@ -35,88 +52,26 @@ python app.py
 
 Access the web interface at `http://localhost:5000`
 
-## Web Interface Usage
+## Web Interface Guide
 
-1. **Initial Screen**:
-   - Click the "Roll" button to generate three random options
+1. **Main Screen**:
+   - Select schedule from dropdown menu and confirm 
+   - Click "Roll" to generate three random schedule options
+   - Options are pulled from the database
 
-2. **Selection Screen**:
-   - Three buttons will appear with different options
-   - Click any button to select your preferred option
-   - Your selection will be displayed below the buttons
+2. **Selection**:
+   - Three buttons appear with different schedule options
+   - Click any button to select your preferred schedule
+   - Your selection is displayed below the buttons
 
 3. **Exit**:
    - Use the "Exit" button to close the application
 
-Note: The application randomly selects from available options when you click "Roll"
-
-## Schedule Management System
-
-This Flask application includes a schedule management system with predefined film schedules.
-
-## Features
-
-- `Schedule` class for managing film schedules
-- Delete the predefined schedules, maybe keep the test one.
-- Each schedule contains:
-  - A name (e.g. "Schedule_1")
-  - A list of films with appearances status tracking
-
-
-Each film entry tracks:
-- Film title
-- Appearances count
-- Completion status
-
-To modify schedules, edit the `schedules.py` file.
-
-## Creating Custom Schedules
-
-To add your own film schedules to the application:
-
-1. **Define your film list** in `schedules.py`:
-   ```python
-   films_custom = [
-       "Film Title 1",  # Simple string format (auto-converts to tuple)
-       ("Film Title 2", 0, False),  # Explicit tuple format
-       # Add more films...
-   ]
-   ```
-   - Tuple format: `(title, appearance_count, watched_status)`
-   - `appearance_count`: Tracks how many times the film has been displayed
-   - `watched_status`: Boolean indicating if film was watched
-   - Strings auto-convert to `(title, 0, False)`
-
-2. **Create a Schedule object**:
-   ```python
-   custom_schedule = Schedule("Schedule_Name", films_custom)  # No whitespace allowed in name
-   ```
-   - Names must be valid SQLite table identifiers (no whitespace, special chars)
-   - Use underscores instead of spaces
-
-3. **Add to schedules list**:
-   ```python
-   schedules.append(custom_schedule)
-   ```
-
-**Notes**:
-- Appearance counts and watch status are automatically tracked
-- Existing schedule (films_test) serve as templates
-- For testing, use the existing `schedule_test` as an example
-- To change the default schedule, modify `schedule_main = schedule_test` in app.py
-
-## Film Management
-
-### Adding/Removing Films
-1. Edit the film lists in `schedules.py`:
-   ```python
-   # Example: Adding to Schedule_test
-   films_test = [
-       ...
-       "New Film",  # Add new films here
-   ]
-   ```
-2. Changes are automatically detected:
+## Development
+To add new schedules:
+1. Edit `schedules.py` to add your schedules
+2. Run the script to update the database:
+3. Changes are automatically detected:
    - Added films appear with default values (0 appearances, not watched)
    - Removed films are deleted from the database
    - Existing films remain unchanged

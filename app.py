@@ -10,7 +10,7 @@ app = Flask(__name__)
 selected_schedule = None
 
 def handle_db(title):
-    """Business logic: Handles the actual label processing"""
+    """Handles the actual label processing"""
     # Add any validation/transformation here
     if not title:
         raise ValueError("Empty title provided")
@@ -38,7 +38,7 @@ def about():
 
 @app.route('/shutdown', methods=['POST'])
 def shutdown():
-    # Safely shutdown the server
+    # Shutdown the server
     os.kill(os.getpid(), signal.SIGINT)
     return 'Server shutting down...'
 
@@ -49,10 +49,8 @@ def process_label_route():
         data = request.get_json()
         full_label = data['label']
 
-        # Extract and clean label (HTTP layer responsibility)
         title = full_label.rsplit(':', 1)[0].strip()
 
-        # Delegate to business logic
         result = handle_db(title)
 
         return jsonify({
