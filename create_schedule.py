@@ -69,10 +69,10 @@ class FilmDatabase:
                 """, (choice,))
         self.conn.commit()
 
-    def delete_table(self):
+    def delete_table(self, schedule):
         """Deletes the current schedule's table"""
         with self.conn:
-            self.conn.execute(f'DROP TABLE IF EXISTS {self.schedule.name}')
+            self.conn.execute(f'DROP TABLE IF EXISTS {schedule}')
 
     def watched_per(self):
         """Schedule watched percentage"""
@@ -147,14 +147,18 @@ def create_missing_tables(db_path: str, schedules: list):
     with FilmDatabase(db_path, schedule=schedules[0]) as db:
         # Create missing tables
         existing_tables = db.get_table_names()
-        
+
         for schedule in schedules:
             if schedule.name not in existing_tables:
                 print(f"Creating table '{schedule.name}'...")
                 db.schedule = schedule
                 db.create_table()
                 db.create_items()
-        
+        # Deletes tables that don't exist in schedules.py
+        for table in existing_tables:
+            if table not in [schedule.name for schedule in schedules]:
+                db.delete_table(table)
+
         # verification
         db.verify_all_tables()
 
