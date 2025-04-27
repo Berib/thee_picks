@@ -23,6 +23,11 @@ flasktut/
 - Web interface with HTML/CSS
 - Random schedule selection functionality
 - Database persistence for schedules
+- Automatic CSV export for Letterboxd import
+
+## Letterboxd Export
+- All schedules are automatically saved as CSV files in the `CSVs/` folder
+- These files can be directly imported into Letterboxd as lists:
 
 ## Requirements
 - Python 3.x
