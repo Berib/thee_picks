@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify, request
-from create_schedule import three_picks, watched_status, create_missing_tables
+from create_schedule import three_picks, watched_status, create_missing_tables, get_watch_count
 from schedules import *
 import os
 import signal
@@ -79,6 +79,13 @@ def select_schedule():
             selected_schedule = schedule
             return jsonify({'status': 'success'})
     return jsonify({'status': 'error', 'message': 'Schedule not found'}), 404
+
+@app.route('/watch_count')
+def watch_count():
+    if selected_schedule:
+        counts = get_watch_count("Schedule", selected_schedule.name)
+        return jsonify(counts)
+    return jsonify({"error": "No schedule selected"}), 400
 
 schedule_main = selected_schedule
 

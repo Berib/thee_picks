@@ -94,3 +94,25 @@ button {
 #confirm-btn:hover {
     background-color: #008c34;
 }
+
+.stats-display {
+    display: none;
+    text-align: center;
+    margin: 15px auto;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    width: 80%;
+    max-width: 300px;
+    font-size: 1.1em;
+}
+
+#unwatched-count {
+    color: #d9534f;
+    font-weight: bold;
+}
+
+#total-count {
+    color: #5bc0de;
+    font-weight: bold;
+}

@@ -22,6 +22,9 @@
     <div id="selection-message" class="selection-textbox">
         <p>Selected: <span id="selected-film"></span></p>
     </div>
+    <div id="simple-stats" style="margin: 10px 0; text-align: center; display: none;">
+        <p><span id="unwatched-count">0</span>/<span id="total-count">0</span></p>
+    </div>
     <div class="button-container" id="hidden-buttons" style="display: none;">
         <button id="button1">Button 1</button>
         <button id="button2">Button 2</button>
@@ -53,10 +56,32 @@
                     if (data.status === 'success') {
                         document.getElementById('dropdown-container').style.display = 'none';
                         document.getElementById('initial-button-container').style.display = 'flex';
+
+                        // Update stats display
+                        fetch('/watch_count')
+                            .then(response => response.json())
+                            .then(stats => {
+                                document.getElementById('simple-stats').style.display = 'block';
+                                document.getElementById('unwatched-count').textContent = stats.unwatched;
+                                document.getElementById('total-count').textContent = stats.total;
+                            });
                     }
                 })
-                .catch(error => console.error('Error:', error));
-            }
+            .catch(error => console.error('Error:', error));
+        }
+    }
+
+
+        function updateSimpleStats() {
+            fetch('/watch_count')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.error) {
+                        document.getElementById('simple-stats').style.display = 'block';
+                        document.getElementById('unwatched-count').textContent = data.unwatched;
+                        document.getElementById('total-count').textContent = data.total;
+                    }
+                });
         }
 
         function showButtons() {
@@ -103,8 +128,14 @@
 
                     document.getElementById('selected-film').textContent = buttonText.split(':')[0].trim();
                     document.getElementById('selection-message').style.display = 'block';
-                })
 
+                    fetch('/watch_count')
+                        .then(response => response.json())
+                        .then(stats => {
+                            document.getElementById('unwatched-count').textContent = stats.unwatched;
+                            document.getElementById('total-count').textContent = stats.total;
+                });
+            })
                 .catch(error => console.error('Error:', error));
         }
 

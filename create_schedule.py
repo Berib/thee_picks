@@ -207,6 +207,20 @@ def create_missing_tables(db_path: str, schedules: list):
         # verification
         db.verify_all_tables()
 
+def get_watch_count(db_name, table_name):
+    """Returns just unwatched and total counts"""
+    with FilmDatabase(f"{db_name}.db", schedule=None) as db:
+        db.cursor.execute(f"""
+            SELECT 
+                COUNT(*) as total,
+                SUM(watched) as watched
+            FROM {table_name}
+        """)
+        total, watched = db.cursor.fetchone()
+        return {
+            'total': total or 0,
+            'unwatched': (total - watched) if watched else total
+        }
 #rename_db_table("Schedule.db", "films", "Schedule_1") # run this to rename a table
 
 #delete_table_func("Schedule", schedule_test) #run this to delete a table
