@@ -1,9 +1,10 @@
 from flask import Flask, render_template, jsonify, request
 from create_schedule import three_picks, watched_status, create_missing_tables, get_watch_count
 from schedules import *
-import os
 import signal
 import shutil
+import webbrowser
+import os
 
 
 app = Flask(__name__)
@@ -89,10 +90,32 @@ def watch_count():
 
 schedule_main = selected_schedule
 
+
 print("⚙️ Initializing database...")
 create_missing_tables("Schedule.db", schedules)
 print("✅ Database ready")
 backup_database()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Start Flask first
+    import threading
+    def run_server():
+        app.run(debug=False)
+
+    server_thread = threading.Thread(target=run_server)
+    server_thread.daemon = True
+    server_thread.start()
+
+    # Then open browser after delay
+    import time
+    time.sleep(1)  # Wait 1 second for server to start
+    webbrowser.open('http://127.0.0.1:5000')
+
+    # Keep main thread alive
+    try:
+        while True: time.sleep(1)
+    except KeyboardInterrupt:
+        pass
+
+
+
