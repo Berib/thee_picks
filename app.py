@@ -89,9 +89,10 @@ def watch_count():
 
 schedule_main = selected_schedule
 
+print("⚙️ Initializing database...")
+create_missing_tables("Schedule.db", schedules)
+print("✅ Database ready")
+backup_database()
+
 if __name__ == '__main__':
-    print("⚙️ Initializing database...")
-    create_missing_tables("Schedule.db", schedules)
-    print("✅ Database ready")
-    backup_database()
     app.run(debug=True)
